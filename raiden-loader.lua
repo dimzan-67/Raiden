@@ -37,7 +37,7 @@ if game.GameId ~= ALLOWED_GAME_ID then
         if queueFunc then
             queueFunc([[
                 wait(3)
-                loadstring(game:HttpGet("https://raiden.dimzan.xyz/loader.lua"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/dimzan-67/Raiden/refs/heads/main/raiden-loader.lua"))()
             ]])
         end
 

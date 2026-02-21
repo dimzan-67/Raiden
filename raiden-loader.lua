@@ -1,26 +1,16 @@
--- Hook loadstring (MOST IMPORTANT)
-local oldLoadstring
-oldLoadstring = hookfunction(loadstring, function(source, ...)
-    writefile("dumped_script.lua", source)
-    print("[DUMPED via loadstring]")
-    return oldLoadstring(source, ...)
-end)
-
--- Hook HttpGet (backup method)
-local oldHttpGet
-oldHttpGet = hookfunction(game.HttpGet, function(self, url, ...)
-    local result = oldHttpGet(self, url, ...)
-
-    if typeof(url) == "string" and string.find(url, "pandadevelopment.net") then
-        writefile("dumped_httpget.lua", result)
-        print("[DUMPED via HttpGet]", url)
+local old
+old = hookfunction(loadstring, function(src, ...)
+    if typeof(src) == "string" then
+        writefile("FULL_DUMP.lua", src)
+        print("[FULL_DUMP.lua written]")
     end
-
-    return result
+    return old(src, ...)
 end)
 
-print("[Hooks installed]")
+print("[loadstring hook active]")
 
+
+-- your script
 getgenv().Configuration = {
     Username    = "JvkeflaRL",
     Rank        = "Archnemesis",

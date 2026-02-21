@@ -1,99 +1,39 @@
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local Analytics = game:GetService("RbxAnalyticsService")
-local TeleportService = game:GetService("TeleportService")
+-- Hook loadstring (MOST IMPORTANT)
+local oldLoadstring
+oldLoadstring = hookfunction(loadstring, function(source, ...)
+    writefile("dumped_script.lua", source)
+    print("[DUMPED via loadstring]")
+    return oldLoadstring(source, ...)
+end)
 
--- integrity checks
-if not HttpService or not Players or not Analytics or not TeleportService then
-    error("Environment integrity check failed")
-end
+-- Hook HttpGet (backup method)
+local oldHttpGet
+oldHttpGet = hookfunction(game.HttpGet, function(self, url, ...)
+    local result = oldHttpGet(self, url, ...)
 
-local player = Players.LocalPlayer
-
-local ALLOWED_GAME_ID = 6035872082
-local TARGET_PLACE_ID = 6035872082
-
--- executor compatibility
-local requestFunc =
-    (syn and syn.request) or
-    (http and http.request) or
-    (http_request) or
-    (request)
-
--- teleport queue compatibility
-local queueFunc =
-    (syn and syn.queue_on_teleport) or
-    (queue_on_teleport) or
-    (fluxus and fluxus.queue_on_teleport)
-
--- redirect if wrong game
-if game.GameId ~= ALLOWED_GAME_ID then
-
-    if not getgenv().RAIDEN_REDIRECTING then
-
-        getgenv().RAIDEN_REDIRECTING = true
-
-        -- queue loader to run after teleport
-        if queueFunc then
-            queueFunc([[
-                wait(3)
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/dimzan-67/Raiden/main/raiden-loader.lua"))()
-            ]])
-        end
-
-        TeleportService:Teleport(TARGET_PLACE_ID, player)
+    if typeof(url) == "string" and string.find(url, "pandadevelopment.net") then
+        writefile("dumped_httpget.lua", result)
+        print("[DUMPED via HttpGet]", url)
     end
 
-    return
-end
+    return result
+end)
 
--- require key
-local key = getgenv and getgenv().RAIDEN_KEY or nil
+print("[Hooks installed]")
 
-if not key or type(key) ~= "string" then
-    error("Missing or invalid key")
-end
+getgenv().Configuration = {
+    Username    = "JvkeflaRL",
+    Rank        = "Archnemesis",
+    Keys        = 14531,
+    Level       = 1149,
+    WinStreak   = 24023,
+    Premium     = true,
+    Verified    = true,
+    Platform    = "MouseKeyboard",
+    Headless    = false,
+    Status      = "Contraband",
+    DisplayName = "RLSub2Jvekfla",
+    Discord     = "https://dsc.gg/luafanclub"
+}
 
--- get hwid
-local hwid = Analytics:GetClientId()
-
-if not requestFunc then
-    error("Executor does not support HTTP requests")
-end
-
--- endpoint
-local endpoint = "https://raiden.dimzan.xyz/api/payload"
-
--- request payload
-local response = requestFunc({
-    Url = endpoint,
-    Method = "POST",
-    Headers = {
-        ["Content-Type"] = "application/json"
-    },
-    Body = HttpService:JSONEncode({
-        key = key,
-        hwid = hwid
-    })
-})
-
-if not response then
-    error("No response from server")
-end
-
-if response.StatusCode ~= 200 then
-    error("Authorization failed: ".. tostring(response.Body))
-end
-
-if not response.Body or response.Body == "" then
-    error("Empty payload")
-end
-
--- execute payload
-local payloadFunc = loadstring(response.Body)
-
-if not payloadFunc then
-    error("Payload corrupted")
-end
-
-payloadFunc()
+loadstring(game:HttpGet("https://vss.pandadevelopment.net/virtual/file/ccab872993744fde"))()
